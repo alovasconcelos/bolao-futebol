@@ -91,6 +91,34 @@ Esse comando executa o schema idempotente e depois aplica o seed em `backend/db/
 - `npm run start --workspace backend`
 - `npm run seed --workspace backend`
 
+## Deploy na Vercel
+
+O projeto foi preparado para deploy full stack na Vercel com:
+
+- frontend estatico publicado a partir de `frontend/dist`
+- API Express servida por `api/index.js`
+- rotas SPA e `/api` configuradas em `vercel.json`
+
+Variaveis de ambiente necessarias na Vercel:
+
+- `DB_HOST`
+- `DB_PORT`
+- `DB_NAME`
+- `DB_USER`
+- `DB_PASSWORD`
+
+Com a CLI autenticada, o deploy pode ser feito com:
+
+```bash
+npx vercel
+```
+
+Ou em producao:
+
+```bash
+npx vercel --prod
+```
+
 ## API REST
 
 - `GET /api/apostadores`
@@ -120,4 +148,5 @@ Esse comando executa o schema idempotente e depois aplica o seed em `backend/db/
 - O frontend usa proxy do Vite para `/api`, apontando para `http://localhost:3001`
 - O backend inicializa automaticamente o schema no startup
 - O endpoint `GET /api/health` agora retorna os dados publicos da conexao MySQL
+- A Vercel usa `vercel.json` para servir o frontend e encaminhar `/api/*` para a funcao Express
 - O build do frontend foi validado com `npm run build --workspace frontend`
