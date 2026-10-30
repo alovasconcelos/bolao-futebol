@@ -57,13 +57,6 @@ npm run dev
 
 ## Banco MySQL
 
-O backend esta configurado para usar este banco MySQL:
-
-- Host: `santostecnologia.com`
-- Porta: `3306`
-- Banco: `bolao-futebol`
-- Usuario: `bolao_root`
-
 As credenciais ficam em `backend/.env`, e o arquivo `backend/.env.example` mostra o formato esperado para outros ambientes.
 
 Na inicializacao, o backend:
