@@ -1,5 +1,13 @@
+function normalizeMatchTime(hora) {
+  if (typeof hora !== 'string') {
+    return '';
+  }
+
+  return hora.length >= 5 ? hora.slice(0, 5) : hora;
+}
+
 function parseMatchDateTime(data, hora) {
-  return new Date(`${data}T${hora}:00`);
+  return new Date(`${data}T${normalizeMatchTime(hora)}:00`);
 }
 
 function canEditPrediction(partida) {
@@ -42,6 +50,7 @@ module.exports = {
   calculatePoints,
   canEditPrediction,
   formatMatchIdentifier,
+  normalizeMatchTime,
   parseMatchDateTime,
   validateScoreValue,
 };

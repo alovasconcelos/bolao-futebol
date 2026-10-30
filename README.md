@@ -4,9 +4,9 @@ Aplicacao web completa para apostas sem valor financeiro entre colegas sobre par
 
 ## Stack
 
-- Backend: Node.js + Express + SQLite (`better-sqlite3`)
+- Backend: Node.js + Express + MySQL (`mysql2`)
 - Frontend: React + Vite + TypeScript + Tailwind CSS
-- Banco local: `backend/data/apostas.db`
+- Banco remoto: MySQL em `santostecnologia.com:3306`
 
 ## Funcionalidades
 
@@ -14,7 +14,7 @@ Aplicacao web completa para apostas sem valor financeiro entre colegas sobre par
 - Cadastro de partidas
 - Lancamento e edicao de palpites ate o horario da partida
 - Confirmacao de resultado com bloqueio de alteracao posterior
-- Calculo automatico de pontuacao em transacao SQLite
+- Calculo automatico de pontuacao em transacao MySQL
 - Ranking geral na tela principal
 - Cards de partidas em aberto com os palpites aninhados
 - Feedback visual com toasts e confirmacao antes de fechar resultado
@@ -24,7 +24,7 @@ Aplicacao web completa para apostas sem valor financeiro entre colegas sobre par
 ```text
 bolao-futebol/
   backend/
-    data/apostas.db
+    .env
     db/schema.sql
     db/seed.sql
     src/server.js
@@ -55,11 +55,22 @@ npm run dev
 - Frontend: `http://localhost:5173`
 - Backend: `http://localhost:3001`
 
-## Banco SQLite
+## Banco MySQL
 
-- O arquivo SQLite local e criado automaticamente na primeira execucao do backend.
-- Caminho do banco: `backend/data/apostas.db`
-- `PRAGMA foreign_keys = ON` e habilitado na conexao.
+O backend esta configurado para usar este banco MySQL:
+
+- Host: `santostecnologia.com`
+- Porta: `3306`
+- Banco: `bolao-futebol`
+- Usuario: `bolao_root`
+
+As credenciais ficam em `backend/.env`, e o arquivo `backend/.env.example` mostra o formato esperado para outros ambientes.
+
+Na inicializacao, o backend:
+
+- cria o banco automaticamente caso ele ainda nao exista;
+- aplica o schema em `backend/db/schema.sql`;
+- usa tabelas InnoDB com suporte a chave estrangeira e `utf8mb4`.
 
 ## Seed opcional
 
@@ -115,4 +126,5 @@ Esse comando executa o schema idempotente e depois aplica o seed em `backend/db/
 
 - O frontend usa proxy do Vite para `/api`, apontando para `http://localhost:3001`
 - O backend inicializa automaticamente o schema no startup
+- O endpoint `GET /api/health` agora retorna os dados publicos da conexao MySQL
 - O build do frontend foi validado com `npm run build --workspace frontend`
