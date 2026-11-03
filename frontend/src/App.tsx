@@ -4,7 +4,7 @@ import { MatchCard } from './components/MatchCard';
 import { RankingTable } from './components/RankingTable';
 import { ToastContainer } from './components/ToastContainer';
 import { api } from './services/api';
-import type { Apostador, Partida, PartidaAberta, RankingItem, ToastItem } from './types';
+import type { Apostador, Palpite, Partida, PartidaAberta, RankingItem, ToastItem } from './types';
 
 interface PendingResult {
   partidaId: number;
@@ -38,6 +38,9 @@ export default function App() {
   const [submitting, setSubmitting] = useState<string | null>(null);
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const [pendingResult, setPendingResult] = useState<PendingResult | null>(null);
+  const [partidaCalendarioSelecionadaId, setPartidaCalendarioSelecionadaId] = useState<number | null>(null);
+  const [palpitesPartidaCalendario, setPalpitesPartidaCalendario] = useState<Palpite[]>([]);
+  const [loadingPalpitesCalendario, setLoadingPalpitesCalendario] = useState(false);
 
   const [apostadorNome, setApostadorNome] = useState('');
   const [partidaForm, setPartidaForm] = useState({
@@ -124,6 +127,11 @@ export default function App() {
       palpites: partidasAbertas.reduce((acc, partida) => acc + partida.palpites.length, 0),
     }),
     [apostadores.length, partidas.length, partidasAbertas]
+  );
+
+  const partidaCalendarioSelecionada = useMemo(
+    () => partidas.find((partida) => partida.id === partidaCalendarioSelecionadaId) ?? null,
+    [partidas, partidaCalendarioSelecionadaId]
   );
 
   const handleCriarApostador = async (event: FormEvent<HTMLFormElement>) => {
@@ -232,6 +240,29 @@ export default function App() {
       placarVisitante,
       label: `${partida.mandante} x ${partida.visitante}`,
     });
+  };
+
+  const handleSelecionarPartidaCalendario = async (partida: Partida) => {
+    if (partidaCalendarioSelecionadaId === partida.id) {
+      setPartidaCalendarioSelecionadaId(null);
+      setPalpitesPartidaCalendario([]);
+      setLoadingPalpitesCalendario(false);
+      return;
+    }
+
+    setPartidaCalendarioSelecionadaId(partida.id);
+    setLoadingPalpitesCalendario(true);
+
+    try {
+      const palpites = await api.listarPalpitesDaPartida(partida.id);
+      setPalpitesPartidaCalendario(palpites);
+    } catch (error) {
+      setPartidaCalendarioSelecionadaId(null);
+      setPalpitesPartidaCalendario([]);
+      pushToast('error', error instanceof Error ? error.message : 'Nao foi possivel carregar as apostas da partida.');
+    } finally {
+      setLoadingPalpitesCalendario(false);
+    }
   };
 
   const handleConfirmarResultado = async () => {
@@ -431,7 +462,16 @@ export default function App() {
                 <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Calendario</p>
                 <div className="space-y-2 text-sm text-slate-200">
                   {partidas.map((partida) => (
-                    <div key={partida.id} className="rounded-xl bg-white/5 px-3 py-2">
+                    <button
+                      key={partida.id}
+                      type="button"
+                      onClick={() => void handleSelecionarPartidaCalendario(partida)}
+                      className={`w-full rounded-xl border px-3 py-2 text-left transition ${
+                        partidaCalendarioSelecionadaId === partida.id
+                          ? 'border-cyan-300/40 bg-cyan-300/10'
+                          : 'border-transparent bg-white/5 hover:border-white/10 hover:bg-white/10'
+                      }`}
+                    >
                       <div className="font-medium">
                         {partida.mandante} x {partida.visitante}
                       </div>
@@ -439,10 +479,54 @@ export default function App() {
                         {formatDate(partida.data)} as {partida.hora}{' '}
                         {partida.placarMandante === null ? '• Em aberto' : `• ${partida.placarMandante} x ${partida.placarVisitante}`}
                       </div>
-                    </div>
+                    </button>
                   ))}
                   {partidas.length === 0 && <p className="text-slate-400">Nenhuma partida cadastrada.</p>}
                 </div>
+
+                {partidaCalendarioSelecionada && (
+                  <div className="mt-4 rounded-2xl border border-cyan-300/20 bg-slate-950/35 p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-cyan-200">Apostas registradas</p>
+                        <h3 className="mt-2 text-base font-semibold text-white">
+                          {partidaCalendarioSelecionada.mandante} x {partidaCalendarioSelecionada.visitante}
+                        </h3>
+                        <p className="mt-1 text-xs text-slate-400">
+                          {formatDate(partidaCalendarioSelecionada.data)} as {partidaCalendarioSelecionada.hora}
+                        </p>
+                      </div>
+                      <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-slate-300">
+                        {loadingPalpitesCalendario ? 'Carregando...' : `${palpitesPartidaCalendario.length} apostas`}
+                      </span>
+                    </div>
+
+                    {loadingPalpitesCalendario ? (
+                      <div className="mt-4 rounded-xl bg-white/5 px-3 py-4 text-sm text-slate-300">
+                        Buscando apostas dessa partida...
+                      </div>
+                    ) : palpitesPartidaCalendario.length > 0 ? (
+                      <div className="mt-4 overflow-hidden rounded-2xl border border-white/10">
+                        <table className="min-w-full text-left text-sm text-slate-100">
+                          <tbody className="divide-y divide-white/5">
+                            {palpitesPartidaCalendario.map((palpite) => (
+                              <tr key={palpite.id} className="bg-white/5">
+                                <td className="px-4 py-3">{palpite.apostadorNome}</td>
+                                <td className="px-4 py-3 text-right font-semibold text-cyan-100">
+                                  {palpite.palpiteMandante} x {palpite.palpiteVisitante}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <div className="mt-4 rounded-xl border border-dashed border-white/10 bg-white/5 px-3 py-4 text-sm text-slate-300">
+                        Nenhuma aposta registrada para essa partida.
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </form>
 

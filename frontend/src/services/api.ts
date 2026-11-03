@@ -1,4 +1,4 @@
-import type { Apostador, Partida, PartidaAberta, RankingItem } from '../types';
+import type { Apostador, Palpite, Partida, PartidaAberta, RankingItem } from '../types';
 
 type HttpMethod = 'GET' | 'POST' | 'PATCH';
 
@@ -26,6 +26,7 @@ export const api = {
   criarPartida: (payload: { data: string; hora: string; mandante: string; visitante: string }) =>
     request<Partida>('/api/partidas', 'POST', payload),
   listarPartidasAbertas: () => request<PartidaAberta[]>('/api/partidas/abertas'),
+  listarPalpitesDaPartida: (partidaId: number) => request<Palpite[]>(`/api/partidas/${partidaId}/palpites`),
   salvarPalpite: (payload: {
     idApostador: number;
     idPartida: number;
