@@ -311,10 +311,6 @@ export default function App() {
               <h1 className="mt-4 text-4xl font-black tracking-tight text-white sm:text-5xl">
                 Palpites de futebol com ranking ao vivo e placar confirmado em um clique.
               </h1>
-              <p className="mt-4 max-w-2xl text-base leading-7 text-slate-300">
-                Cadastre apostadores, organize partidas, receba palpites antes do apito inicial e feche resultados com
-                pontuacao automatica no SQLite.
-              </p>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -346,9 +342,6 @@ export default function App() {
                   <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-200">Jogos</p>
                   <h2 className="text-2xl font-bold text-white">Partidas em aberto</h2>
                 </div>
-                <span className="rounded-full border border-violet-300/25 bg-violet-300/10 px-3 py-1 text-xs font-semibold text-violet-100">
-                  Hover com destaque
-                </span>
               </div>
 
               <div className="grid gap-5 lg:grid-cols-2">
