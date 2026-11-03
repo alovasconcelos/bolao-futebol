@@ -4,3 +4,4 @@ backend/node_modules/
 frontend/dist/
 backend/data/apostas.db
 backend/.env
+nssm.exe
