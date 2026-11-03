@@ -31,12 +31,6 @@ export function MatchCard({ partida }: MatchCardProps) {
       <div className="overflow-hidden rounded-2xl border border-white/10">
         <table className="min-w-full text-left text-sm text-slate-100">
           <thead className="bg-white/10 text-xs uppercase tracking-[0.2em] text-slate-300">
-            <tr>
-              <th className="px-4 py-3">Apostador</th>
-              <th className="px-4 py-3 text-right">
-                {partida.mandante} x {partida.visitante}
-              </th>
-            </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
             {partida.palpites.map((palpite) => (
