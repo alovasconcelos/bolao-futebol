@@ -5,13 +5,18 @@ interface RankingTableProps {
 }
 
 export function RankingTable({ items }: RankingTableProps) {
-  const rankingComPosicao = items.reduce<Array<RankingItem & { posicao: number }>>((acc, item, index) => {
-    const itemAnterior = items[index - 1];
-    const posicao = itemAnterior && itemAnterior.pontos === item.pontos ? acc[index - 1].posicao : index + 1;
+  const rankingAgrupado = items.reduce<Array<{ posicao: number; nomes: string[]; pontos: number }>>((acc, item) => {
+    const ultimoGrupo = acc[acc.length - 1];
+
+    if (ultimoGrupo && ultimoGrupo.pontos === item.pontos) {
+      ultimoGrupo.nomes.push(item.nome);
+      return acc;
+    }
 
     acc.push({
-      ...item,
-      posicao,
+      posicao: acc.length + 1,
+      nomes: [item.nome],
+      pontos: item.pontos,
     });
 
     return acc;
@@ -39,10 +44,10 @@ export function RankingTable({ items }: RankingTableProps) {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5 text-sm text-slate-100">
-            {rankingComPosicao.map((item) => (
-              <tr key={item.id} className="bg-white/5 transition hover:bg-white/10">
+            {rankingAgrupado.map((item) => (
+              <tr key={`${item.posicao}-${item.pontos}`} className="bg-white/5 transition hover:bg-white/10">
                 <td className="px-4 py-3 font-semibold text-cyan-200">{String(item.posicao).padStart(2, '0')}</td>
-                <td className="px-4 py-3">{item.nome}</td>
+                <td className="px-4 py-3">{item.nomes.join(', ')}</td>
                 <td className="px-4 py-3 text-right font-bold text-white">{item.pontos}</td>
               </tr>
             ))}
