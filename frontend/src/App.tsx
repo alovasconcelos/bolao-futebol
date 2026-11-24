@@ -134,6 +134,14 @@ export default function App() {
     [partidas, partidaCalendarioSelecionadaId]
   );
 
+  const partidasCalendario = useMemo(
+    () =>
+      [...partidas]
+        .sort((a, b) => (b.data + b.hora).localeCompare(a.data + a.hora))
+        .slice(0, 10),
+    [partidas]
+  );
+
   const handleCriarApostador = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -454,7 +462,7 @@ export default function App() {
               <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950/25 p-4">
                 <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Calendario</p>
                 <div className="space-y-2 text-sm text-slate-200">
-                  {partidas.map((partida) => (
+                  {partidasCalendario.map((partida) => (
                     <button
                       key={partida.id}
                       type="button"
@@ -474,7 +482,7 @@ export default function App() {
                       </div>
                     </button>
                   ))}
-                  {partidas.length === 0 && <p className="text-slate-400">Nenhuma partida cadastrada.</p>}
+                  {partidasCalendario.length === 0 && <p className="text-slate-400">Nenhuma partida cadastrada.</p>}
                 </div>
 
                 {partidaCalendarioSelecionada && (
